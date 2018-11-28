@@ -1,0 +1,66 @@
+PDS_VERSION_ID                 = PDS3
+
+/* FILE CHARACTERISTICS */
+RECORD_TYPE                    = FIXED_LENGTH
+RECORD_BYTES                   = 256
+FILE_RECORDS                   = 1617
+
+/* POINTERS TO DATA OBJECTS */
+^TIME_SERIES                   = "DND_20020219.DAT"
+
+/* IDENTIFICATION DATA ELEMENTS */
+DATA_SET_NAME                  = "ODY MARS GAMMA RAY SPECTROMETER 4 DND V1.0"
+DATA_SET_ID                    = "ODY-M-GRS-4-DND-V1.0"
+PRODUCT_ID                     = "DND_20020219"
+PRODUCT_TYPE                   = "DERIVED_NEUTRON_DATA"
+PRODUCT_VERSION_ID             = "1.0"
+RELEASE_ID                     = "0008"
+
+/* DESCRIPTIVE DATA ELEMENTS */
+INSTRUMENT_HOST_NAME           = "2001 MARS ODYSSEY"
+INSTRUMENT_NAME                = "GAMMA RAY SPECTROMETER"
+SPACECRAFT_ID                  = ODY
+TARGET_NAME                    = MARS
+MISSION_PHASE_NAME             = MAPPING
+START_TIME                     = 2002-02-19T14:06:43.667
+STOP_TIME                      = 2002-02-19T23:59:41.711
+SPACECRAFT_CLOCK_START_COUNT   = 178840288983
+SPACECRAFT_CLOCK_STOP_COUNT    = 178849396980
+PRODUCT_CREATION_TIME          = 2004-06-18T20:14:11.659
+
+/* DATA OBJECT DEFINITION */
+OBJECT                         = TIME_SERIES
+
+  INTERCHANGE_FORMAT           = BINARY
+  ROWS                         = 1617
+  ROW_BYTES                    = 256
+
+  SAMPLING_PARAMETER_NAME      = TIME
+  SAMPLING_PARAMETER_UNIT      = TICKS
+  SAMPLING_PARAMETER_INTERVAL  = "N/A"
+
+  /* The complete column definitions are contained in an external file */
+  /* found in the LABEL directory of the archive disk.                 */
+  
+  COLUMNS                      = 53
+  ^STRUCTURE                   = "DERIV_NEUTRON_DATA_COLS.FMT"
+
+  /* DESCRIPTIVE data elements */
+  DESCRIPTION                  = "
+  The DND product contains normalized neutron counting rates for all four of
+  the Neutron Spectrometer prisms, from which thermal and epithermal neutron
+  count rates are determined. 
+
+  Thermal and epithermal count rates are included in the data set.
+  Background-corrected and normalized fast counting data are also provided for
+  the nadir-looking prism (Prism 1).  The data is presented in a table format
+  with one row of data for each NS collection interval within a 24 Earth hour
+  period. The DND data can be used along with models and calibration
+  procedures described in the literature [Feldman et al., 2003; Prettyman et
+  al., 2004] to study the composition and structure of the surface and
+  atmosphere of Mars on sub-seasonal time scales.
+  "
+
+END_OBJECT                     = TIME_SERIES
+
+END

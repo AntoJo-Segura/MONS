@@ -1,20 +1,15 @@
-context("main_text")
+context("commands")
 
-test_that("Difference_between_UTC_and_local_is_correct",{
-    localtime <- Sys.time()
+#data block was saved for testing
+#save(m,file = 'test_data_block.RData')
+#load('test_data_block.RData')
+
+test_that("time_to_solar_longitude",{
+    time <- 178840288983
     expect_equal(
-      format( - hoursUTC() %h+% localtime, format = "%Y-%m-%d %H:%M:%S" ),
-      format( toUTC(localtime), format = "%Y-%m-%d %H:%M:%S" )
+      solar_longitude(time),
+      274.3732
     )
   }
 )
 
-test_that("hoursUTC_at_UTC",{
-  localtimeUTC <- Sys.time()
-  attr(localtimeUTC,"tzone") <- "UTC"
-  expect_equal(
-    hoursUTC(localtimeUTC),
-    0
-  )
-}
-)
