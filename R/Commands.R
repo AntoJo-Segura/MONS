@@ -150,9 +150,7 @@ mongodb <- function(x){mongo(x, db = 'Mars', url = db_path)}
 Mons<- mongodb('Mons')
 Mons_offset<- mongodb('Mons_offset')
 
-#'
-#'@test solar_longitude(as.numeric(a[1,]$V1)) == 274.3732
-#'
+
 solar_longitude <- function(time){
   aux = 360.
   t2000 = 67399602.999984 * (time - 178840288983) * 256
