@@ -7,11 +7,12 @@ library(dplyr)
 
 '%c%' <- function(x,y){paste(x,y,sep='')}
 
-script_path = 'C:/Users/AntoJo/Documents/TestBench/scripts/'
+script_path <- 'C:/Users/AntoJo/Documents/TestBench/scripts/'
 root_path <- 'E:/HTTrackerMONS/MONS/pds-geosciences.wustl.edu/ody/ody-m-grs-4-dnd-v1/odgd1_xxxx'
 db_path <- "mongodb://localhost"
 
-year_path <- '' # need to integrate doc_insert and folder_seeker :(
+year_path <- '' # need to integrate doc_insert and folder_seeker :( 
+#TODO chain to root_path
 
 #data structure ####
 #maybe regex: ^(?!foo).*$ could help
@@ -80,10 +81,10 @@ columnNames <- c(
 )
 
 #read.table(colClasses = ) 
-#all maped in mongo except date  
+#double used as big integer
 columnTypes <- c(
-  'integer',
-  'integer',
+  'double',
+  'double',
   'POSIXct',#'yyyy-mm-ddThh:mm:ss.sss',
   'integer',
   'integer',
@@ -161,21 +162,34 @@ solar_longitude <- function(time){
   (alpha+vM) %% aux #*(pi/180.)  
 }
 
-doc_insert <- function(doc, initial_doc = doc, parallel_insert = FALSE){
-  
-  if(parallel_insert 
-     && Mons_offset$find()[1,] > doc) return() #skip if it is inserted
-  
-  if(doc < initial_doc ) return() #skip if control doc is inserted
+
+load_doc <- function(doc){
   # print(year_path) # debug integration error
   doc_path <- year_path %c% '/' %c% doc %c% '/dnd_' %c% doc %c% '.dat'
-  dir <- system('ls ' %c% doc_path, intern = TRUE)
-  
+  # dir <- system('ls ' %c% doc_path, intern = TRUE)
+  # print(dir)
   doc_data <- system('java -jar '%c% script_path %c%'grs_code.zip '%c% doc_path, intern = TRUE)
   read.table(text = doc_data, sep= ',', 
              col.names = columnNames, colClasses = columnTypes) %>%
-  mutate(SOLAR_LONGITUDE = solar_longitude(SC_RECV_TIME)) %>% 
-  Mons$insert()
+    mutate(SOLAR_LONGITUDE = solar_longitude(SC_RECV_TIME), DOC_ID = doc)
+}
+
+
+doc_insert <- function(doc, initial_doc = doc, parallel_insert = TRUE){
+  
+  if(parallel_insert 
+     && Mons_offset$find()[1,] >= doc) {
+    print(doc %c% ' skipped by ' %c% Mons_offset$find()[1,])
+    return() #skip if it is inserted
+  }
+  if(doc < initial_doc ) return() #skip if control doc is inserted. It is necessary?
+  
+  # test_doc <- load_doc(doc)#debug chunk if it fail
+  # test_doc %>% print()
+  # test_doc %>% Mons$insert()
+  
+  load_doc(doc) %>% Mons$insert()
+  
   #ofset update
   Mons_offset$update(query= '{}', update = '{"$set":{"offset":'%c% doc %c%'}}')
   print(doc)
