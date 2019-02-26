@@ -4,6 +4,10 @@ library(mongolite)
 if(!require(dplyr))
   install.packages('dplyr')
 library(dplyr)
+if(!require(Rmpfr))
+  install.packages("Rmpfr")
+library(Rmpfr)
+
 
 '%c%' <- function(x,y){paste(x,y,sep='')}
 
@@ -150,7 +154,7 @@ columnTypes <- c(
 mongodb <- function(x){mongo(x, db = 'Mars', url = db_path)}
 Mons<- mongodb('Mons')
 Mons_offset<- mongodb('Mons_offset')
-
+Mons_errortrack<- mongodb('Mons_errortrack')
 
 solar_longitude <- function(time){
   aux = 360.
@@ -169,6 +173,7 @@ load_doc <- function(doc){
   # dir <- system('ls ' %c% doc_path, intern = TRUE)
   # print(dir)
   doc_data <- system('java -jar '%c% script_path %c%'grs_code.zip '%c% doc_path, intern = TRUE)
+  #return read table
   read.table(text = doc_data, sep= ',', 
              col.names = columnNames, colClasses = columnTypes) %>%
     mutate(SOLAR_LONGITUDE = solar_longitude(SC_RECV_TIME), DOC_ID = doc)
@@ -188,7 +193,21 @@ doc_insert <- function(doc, initial_doc = doc, parallel_insert = TRUE){
   # test_doc %>% print()
   # test_doc %>% Mons$insert()
   
-  load_doc(doc) %>% Mons$insert()
+  tryCatch({
+    load_doc(doc) %>% Mons$insert()
+  }, error = function(err) {
+    # err_clean <- sub('\'','',err)
+    insert <- '{"doc":'%c% doc %c%', "datetime": "'%c%
+      Sys.time() %c%'" }' #, "error":"'%c% err %c%'"
+    print(insert)
+    if(Mons_errortrack$find('{"doc":'%c% doc %c%'}') %>% nrow() == 0){
+      insert %>% Mons_errortrack$insert()
+      print('error inserted at: '%c% doc)
+    }
+
+  }
+  )
+  
   
   #ofset update
   Mons_offset$update(query= '{}', update = '{"$set":{"offset":'%c% doc %c%'}}')
@@ -224,4 +243,41 @@ fill_db <- function(script_path, root_path, db_path) {
 }
 
 fill_db(script_path, root_path, db_path)
+
+
+# #reset 
+# doc <- 20160000
+# Mons_offset$update(query= '{}', update = '{"$set":{"offset":'%c% doc %c%'}}')
+
+# 
+# insertIfNew <- function(document,collection, idname){
+#   if(collection$count('{' %c% idname %c% ': ' %c% document$idname %c%'}') >0 )
+#     collection$insert(document)
+# }
+
+
+#TODO insert new solar_longitude ####
+#'
+#'@note select accuracy default:
+#'i <-120
+#'solar_longitude_v2(grid[grid$SOLAR_LONGITUDE == 0,]$SC_RECV_TIME , i) - solar_longitude_v2(grid[grid$SOLAR_LONGITUDE == 0,]$SC_RECV_TIME , i+10)
+#'@test mpfr check: 
+#'j = 1
+#'j == ( (mpfr(2.1e+21, 120) + j) %% 360 - mpfr(2.1e+21, 120) %% 360 )
+#'
+#'
+solar_longitude_v2 <- function(time, accuracy = 120){
+  time <- mpfr(time,accuracy)
+  aux <- 360.
+  t2000 <- mpfr( 0.52402075 * 0.5240384 * 67399602.999984 * (time - 178840288983) * 256 * (pi/180)
+                 ,accuracy)
+  alpha <- mpfr( 0.52402075 *270.3863 +  t2000
+                 ,accuracy)
+  AA <- mpfr( 19.387 * (pi/180.) + t2000  
+              ,accuracy)
+  vM <- mpfr( ( 10.691 + 3 * 10^(-7) * t2000 ) * sin(AA) + 0.623 *
+                sin(2.*AA) + 0.05 * sin(3.*AA) + 0.005 * sin(4.*AA) + 0.0005 * sin(5.*AA)
+              ,accuracy)
+  (alpha+vM) %% aux #*(pi/180.)  
+}
 
