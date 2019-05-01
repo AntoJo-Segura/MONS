@@ -52,32 +52,19 @@ partial_sl<- function(time, accuracy = 120){
 longitude <- seq(-180,180,1) + 180
 latitude <- seq(-90,90,1) 
 output.grid <- data.frame(row.names = c('latitude','longitude','lag','correlation'))
-for(i in 1: (length(latitude) - 1 )){
-  for(j in 1: (length(longitude) - 1)) {  
+i0 = 15
+j0 = 62
+for(i in i0: (length(latitude) - 1 )){
+  for(j in j0: (length(longitude) - 1)) { 
+    print("i " %c% i)
+    print("j " %c% j)
     
     latitude.lower = latitude[i] 
     latitude.upper = latitude[(i + 1) ]
     longitude.lower = longitude[j]
     longitude.upper = longitude[(j + 1) ]
-    
-    grid <- getGrid(latitude.upper, latitude.lower, longitude.upper, longitude.lower)
-    
-    ls <- as.numeric(partial_sl(grid$SC_RECV_TIME))
-    epi <- grid$CF_ATM_EPI
-    if(is.null(ls)||is.null(epi)||nrow(ls) != nrow(epi) ){
-      print("lat and long")
-      print(latitude.lower %c% ' , ' %c% longitude.lower)
-      print("epi and ls")
-      print(epi %c% ls)
-      break
-    }
-    protoGrid <- data.frame(ls = ls, epi = epi)
-    
-    autocorr <- acf(protoGrid[order(ls),]$epi, lag.max = 360, plot = FALSE)
-    max.corr <- autocorr[ which.max(autocorr$acf[2:length(autocorr$acf)]) ] 
-    
-    output.grid <- rbind(output.grid, c(latitude,longitude,max.corr$acf,max.corr$lag) )  
-    
+    output.grid <- output.grid %>% 
+      cbind( c(latitude.upper, longitude.upper, GridByIndex(latitude.upper, latitude.lower, longitude.upper, longitude.lower)) )
   }
 }
 
