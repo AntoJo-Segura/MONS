@@ -2,8 +2,8 @@
 
 latitude.upper <- -30
 latitude.lower <- -60
-longitud.upper <- 30
-longitud.lower <- 90
+longitud.upper <- 90
+longitud.lower <- 30
 
 grid3 <- getGrid(latitude.upper, latitude.lower, longitud.upper, longitud.lower)
 clean3 <- grid3[grid3$SOLAR_LONGITUDE != 0,]
