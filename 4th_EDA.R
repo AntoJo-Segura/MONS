@@ -104,10 +104,56 @@ acf(d3$EPI, 200)
 
 
 #### temporal and space analysis ###
+
+# lat -60 band
 sapply(seq(90,30),(function(x){
     d3[d3$lat == -60 & d3$lon == x, ]$EPI %>% length() } 
 ) )
 
+sapply(seq(90,30),(function(x){
+  c(x,d3[d3$lat == -60 & d3$lon == x, ]$EPI %>% length() )} 
+) )
 
+sapply(seq(88,32,-4),(function(x){
+  d3[d3$lat == -60 & d3$lon == x, ]$EPI %>% length() } 
+) )
+
+sapply(seq(88,32,-4),(function(x){
+  jpeg('lat60lon' %c% x %c% '.jpg')
+  plot( d3[d3$lat == -60 & d3$lon == x, ]$UTC, d3[d3$lat == -60 & d3$lon == x, ]$EPI) 
+  dev.off()
+} ) )
+
+# lon 80 band
+sapply(seq(-60,-30),(function(x){
+  c(x,d3[d3$lat == x & d3$lon == 88, ]$EPI %>% length() )} 
+) )
+
+
+# xy 
+df.epi1 <- sapply(seq(-60,30,4), function(x){ #seq(-30,-60)
+  mapply(
+    function(x,y){
+      c( x,y, length(d3[d3$lat == x & d3$lon == y, ]$EPI ) )
+    }
+  ,x,seq(88,32,-4)) #seq(90,30))
+}) %>% data.frame()
+df.epi1
+
+#folder Hellas_Time_15_18 needs be created
+sapply(seq(-60,30,4), function(x){ 
+  mapply(
+    function(x,y){
+      if(length(d3[d3$lat == x & d3$lon == y, ]$UTC) > 0 ){
+        jpeg('Hellas_Time_15_18/lat_'%c% x %c% '_lon_'%c% y %c%'.jpeg')
+        plot(
+          d3[d3$lat == x & d3$lon == y, ]$UTC,
+          d3[d3$lat == x & d3$lon == y, ]$EPI 
+          ,type= "l")
+        dev.off()
+      }
+},x,seq(88,32,-4)) 
+})
+graphics.off()
 
 
