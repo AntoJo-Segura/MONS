@@ -103,7 +103,10 @@ d3$EPI %>% length()
 acf(d3$EPI, 200)
 
 
-
+#### temporal and space analysis ###
+sapply(seq(90,30),(function(x){
+    d3[d3$lat == -60 & d3$lon == x, ]$EPI %>% length() } 
+) )
 
 
 
