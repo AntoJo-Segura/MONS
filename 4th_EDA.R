@@ -14,8 +14,8 @@ longitud.lower <- 30
 # plot(clean3$UTC, clean3$THERMAL_COUNT_RATE, type='l')
 
 #save(grid3,file ='grid3.RData')
-clean3b <- get(load(file = 'C:/Users/AntoJo/Documents/R/WorkSpace/MONS/clean3.RData'))
-grid3b <- get(load(file = 'C:/Users/AntoJo/Documents/R/WorkSpace/MONS/grid3.RData'))
+clean3b <- get(load(file = paste(getwd(),'/clean3.RData', sep = '')))
+grid3b <- get(load(file = paste(getwd(),'/grid3.RData', sep = '')))
 
 
 ###############
