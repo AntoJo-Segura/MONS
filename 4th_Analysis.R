@@ -1,6 +1,6 @@
 #generate pixel images
 
-# clean3b <- get(load(file = 'C:/Users/AntoJo/Documents/R/WorkSpace/MONS/clean3.RData'))
+# clean3b <- get(load(file = paste(getwd(),'/clean3.RData',sep = '')))
 
 
 clean3ToGrid <- function(lat.p,lon.p){
